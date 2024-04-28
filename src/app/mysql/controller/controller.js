@@ -2,6 +2,41 @@ const db = require('../model/index.js');
 const Tutorial = db.tutorial;
 const Op = db.sequelize.Op;
 
+let busRequestQueue = new Map();
+
+exports.stop=(req,res)=>{
+    console.log("ok");
+    const {busId,message}=req.body;
+    if (busRequestQueue.has(busId)){
+        const busRes=busRequestQueue.get(busId);
+        busRes.send({message:message});
+        busRequestQueue.delete(busId);
+        res.status(200).send({message:"sent to bus"});
+    }
+    else{
+        res.status(200).send({message:"noting in queue"});
+    }
+    
+}
+
+exports.bus=(req,res)=>{
+    const busId = req.params.busId;
+
+    busRequestQueue.forEach(function(value, key) {
+        console.log(`key : ${key} | value : ${value}`);
+    });
+
+    if (busRequestQueue.has(busId)){
+        busRequestQueue.delete(busId);
+        //res.status(201).send({message:"already in queue"});
+    }
+    else{
+        //res.status(200).send({message:"set in queue"}); 
+        //Cannot set headers after they are sent to the client
+    }
+    busRequestQueue.set(busId,res);
+}
+
 // Create tutorial
 exports.create = (req, res) => {
     // Validate request

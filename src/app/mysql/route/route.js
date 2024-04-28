@@ -16,4 +16,8 @@ router.put('/api/tutorial/:id', tutorial.update);
 // Delete tutorial by id
 router.delete('/api/tutorial/:id', tutorial.delete);
 
+router.post('/api/busstop',tutorial.stop);
+router.get('/api/bus/:busId',tutorial.bus);
+//router.post('/api/register',tutorial.register);
+
 module.exports = router;
