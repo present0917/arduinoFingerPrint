@@ -1,0 +1,16 @@
+esp-01 9600으로 바꾸기. 어댑터 있어서 5V사용
+메가라서 시리얼 핀 특정해서 사용
+
+https://bcho.tistory.com/1283
+
+https://bcho.tistory.com/1284
+
+https://bcho.tistory.com/1283
+
+https://ttsfree.com/ko
+001 안내
+002 인식됨 키패드버스번호
+003 1번버스?
+004 2번버스?
+005 요청전송됨
+006 인식x다시
