@@ -1,18 +1,39 @@
+#include "WiFiEsp.h"
 #include <Adafruit_Fingerprint.h>
 #include "Arduino.h"
-#include "DFRobotDFPlayerMini.h"
 #include "SoftwareSerial.h"
+#include "DFRobotDFPlayerMini.h"
+
+SoftwareSerial Serialw(50, 51); // RX, TX
+char SSID_NAME[] = "iptime";
+char SSID_PASS[] = "";
+char SERVER[] = "";
+int HTTPPORT = ;
+char PATH[] = "/api/busstop";
+WiFiEspClient client;
+
+//SoftwareSerial fingerSerial(10, 11);
+Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial1);
+int id;
 
 //SoftwareSerial mp3Serial(12, 13); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
-//SoftwareSerial fingerSerial(10, 11);
 
-Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial1);
-int id;
+
 void setup()
 {
   Serial.begin(9600);
   Serial2.begin(9600);
+  Serialw.begin(9600);
+  WiFi.init(&Serialw);
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(SSID_NAME);
+    WiFi.begin(SSID_NAME, SSID_PASS);
+    delay(1000);
+  }
+  Serial.println("Connected to wifi");
+  //wifi 파트
 
   while (!Serial);
   delay(100);
@@ -31,7 +52,7 @@ void setup()
 
 
   //mp3Serial.begin(9600);
-  
+  Serial.println();
   Serial.println(F("DFRobot DFPlayer Mini Demo"));
   Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
 
@@ -44,7 +65,7 @@ void setup()
   Serial.println(F("DFPlayer Mini online."));
 
   myDFPlayer.volume(20);  //Set volume value. From 0 to 30
-
+  //mp3 파트
 
 }
 
@@ -56,6 +77,34 @@ void loop() {
   if(choicenum==1) enroll();
   else if(choicenum==2) readFinger();
   else if(choicenum==3) mp3test();
+  else if(choicenum==4) postmethod();
+}
+
+void postmethod(){
+  Serial.println("OK");
+  char postData[] = "{\"busId\": \"53\", \"message\": \"fortest\"}";
+  int contentLength = strlen(postData);
+
+  if (client.connect(SERVER, HTTPPORT)) {
+    Serial.println("Connected to server");
+    
+    // Send HTTP POST request
+    client.print("POST ");
+    client.print(PATH);
+    client.print(" HTTP/1.1\r\n");
+    client.print("Host: ");
+    client.print(SERVER);
+    client.print("\r\n");
+    client.print("Content-Type: application/json\r\n");
+    client.print("Content-Length: ");
+    client.print(contentLength);
+    client.print("\r\n\r\n");
+    client.print(postData);
+    client.print("\r\n");
+    // Close connection
+    client.stop();
+  }
+  delay(500); // Delay before next request
 }
 
 void enroll(){

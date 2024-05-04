@@ -14,3 +14,15 @@ https://ttsfree.com/ko
 004 2번버스?
 005 요청전송됨
 006 인식x다시
+
+https://arduino.stackexchange.com/questions/60175/software-serial-conflict-with-wifi-on-esp8266
+충돌;;
+
+https://blog.naver.com/darknisia/221797281815?trackingCode=blog_bloghome_searchlist
+
+https://suhwi.tistory.com/2
+
+그냥 둘다 get으로 해서
+키패드 입력한 것도 쿼리스트링으로?
+
+https://github.com/bportaluri/WiFiEsp/issues/50

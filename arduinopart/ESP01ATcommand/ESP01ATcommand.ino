@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>
-SoftwareSerial mySerial(51, 50); // TX, RX
+SoftwareSerial mySerial(50, 51); // TX, RX
 void setup() 
 { 
   Serial.begin(9600); 

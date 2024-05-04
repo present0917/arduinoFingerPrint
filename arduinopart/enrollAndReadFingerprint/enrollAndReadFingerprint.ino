@@ -1,6 +1,6 @@
 #include <Adafruit_Fingerprint.h>
-SoftwareSerial mySerial(10, 11);
-Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
+//SoftwareSerial mySerial(10, 11);
+Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial1);
 int id;
 void setup()
 {
@@ -42,7 +42,7 @@ void enroll(){
   getFingerprintEnroll();
 }
 void readFinger(){
-  for(int i=0;i<100;i++)
+  for(int i=0;i<10;i++)
   {
     getFingerprintID();
     delay(50);

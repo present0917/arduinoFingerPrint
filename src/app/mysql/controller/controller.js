@@ -4,6 +4,22 @@ const Op = db.sequelize.Op;
 
 let busRequestQueue = new Map();
 
+exports.busstop=(req,res)=>{
+    console.log("new get")
+    const busId = req.params.busId;
+    const userId = req.params.userId;
+
+    if (busRequestQueue.has(busId)){
+        const busRes=busRequestQueue.get(busId);
+        busRes.send({message:message});
+        busRequestQueue.delete(busId);
+        res.status(200).send({message:"sent to bus"});
+    }
+    else{
+        res.status(200).send({message:"noting in queue"});
+    }
+}
+
 exports.stop=(req,res)=>{
     console.log("ok");
     const {busId,message}=req.body;

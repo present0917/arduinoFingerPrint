@@ -1,21 +1,21 @@
-#include "Arduino.h"
+
 #include "SoftwareSerial.h"
 #include "DFRobotDFPlayerMini.h"
 
-SoftwareSerial mp3Serial(12, 13); // RX, TX
+//SoftwareSerial mp3Serial(11, 10); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
 
 void setup()
 {
-  mp3Serial.begin(9600);
+  Serial2.begin(9600);
   Serial.begin(9600);
 
   Serial.println();
   Serial.println(F("DFRobot DFPlayer Mini Demo"));
   Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
 
-  if (!myDFPlayer.begin(mp3Serial)) {  //Use softwareSerial to communicate with mp3.
+  if (!myDFPlayer.begin(Serial2)) {  //Use softwareSerial to communicate with mp3.
     Serial.println(F("Unable to begin:"));
     Serial.println(F("1.Please recheck the connection!"));
     Serial.println(F("2.Please insert the SD card!"));
