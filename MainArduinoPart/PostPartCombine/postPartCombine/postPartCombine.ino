@@ -22,7 +22,7 @@ SoftwareSerial Serialw(10, 11);  // RX, TX
 char SSID_NAME[] = "iptime";
 char SSID_PASS[] = "";
 char SERVER[] = "";
-int HTTPPORT = 917;
+int HTTPPORT = ;
 char PATH[] = "/api/busstop";
 WiFiEspClient client;
 
