@@ -21,10 +21,11 @@ exports.enroll = (req, res) => {
     }).then(([instance, created]) => {
         if (!created) {
             res.status(200).send({ message: "Already enrolled"});
+            return null;  
+        } else {
+            res.status(200).send({ message: "Enrolled"});
+            return instance;  //바로종료
         }
-        return instance;
-    }).then(instance => {
-        res.status(200).send({ message: "enrolled"});
     }).catch(err => {
         res.status(500).send({
             message: err.message || 'Error updating or creating entry.'

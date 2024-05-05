@@ -26,3 +26,9 @@ https://suhwi.tistory.com/2
 키패드 입력한 것도 쿼리스트링으로?
 
 https://github.com/bportaluri/WiFiEsp/issues/50
+
+https://blog.naver.com/PostView.naver?blogId=emperonics&logNo=222197590991
+
+https://github.com/jandrassy/WiFiEspAT#Why-a-new-wifiesp-library
+
+https://m.blog.naver.com/jangseob83/221359361050
