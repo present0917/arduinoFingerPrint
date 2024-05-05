@@ -61,8 +61,19 @@ exports.stop = (req, res) => {
     };
     if (busRequestQueue.has(busId)) {
         const busRes = busRequestQueue.get(busId);
-        busRes.send({ message: message });
+        
         busRequestQueue.delete(busId);
+        Test1.findByPk(Id).then(instance => {
+            if (instance) {
+                busRes.send({ type: instance.disabledType, message: "Data found sent" });
+            } else {
+                busRes.send({ message: "No data from id" });
+                return Promise.resolve(null);  // 후속 처리 중단
+            }
+        });
+
+
+
 
         Test1.findOrCreate({
             where: { id: Id },
