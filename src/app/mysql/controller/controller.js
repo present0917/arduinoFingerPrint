@@ -4,6 +4,36 @@ const Op = db.sequelize.Op;
 
 let busRequestQueue = new Map();
 
+exports.enroll = (req, res) => {
+    console.log("enroll");
+    const { Id, type } = req.body;
+    const datas = {
+        id: Id,
+        type: type
+    };
+    Test1.findOrCreate({
+        where: { id: Id },
+        defaults: {
+            id: Id,
+            disabledType: type,
+            count: 0 // 처음 생성할 때 count 값
+        }
+    }).then(([instance, created]) => {
+        if (!created) {
+            res.status(200).send({ message: "Already enrolled"});
+        }
+        return instance;
+    }).then(instance => {
+        res.status(200).send({ message: "enrolled"});
+    }).catch(err => {
+        res.status(500).send({
+            message: err.message || 'Error updating or creating entry.'
+        });
+    });
+}
+
+
+
 exports.info = (req, res) => {
     const title = req.query.title;
     let condition = { where: {} };
@@ -20,19 +50,19 @@ exports.info = (req, res) => {
         });
 };
 
-exports.stop=(req,res)=>{
+exports.stop = (req, res) => {
     console.log("ok");
-    const {busId,Id,message}=req.body;
+    const { busId, Id, message } = req.body;
     const datas = {
         busId: busId,
         id: Id,
         message: message
     };
-    if (busRequestQueue.has(busId)){
-        const busRes=busRequestQueue.get(busId);
-        busRes.send({message:message});
+    if (busRequestQueue.has(busId)) {
+        const busRes = busRequestQueue.get(busId);
+        busRes.send({ message: message });
         busRequestQueue.delete(busId);
-        
+
         Test1.findOrCreate({
             where: { id: Id },
             defaults: {
@@ -57,22 +87,23 @@ exports.stop=(req,res)=>{
     }
 }
 
-exports.bus=(req,res)=>{
+exports.bus = (req, res) => {
     const busId = req.params.busId;
 
-    busRequestQueue.forEach(function(value, key) {
-        console.log(`key : ${key} | value : ${value}`);
-    });
 
-    if (busRequestQueue.has(busId)){
+
+    if (busRequestQueue.has(busId)) {
         busRequestQueue.delete(busId);
         //res.status(201).send({message:"already in queue"});
     }
-    else{
+    else {
         //res.status(200).send({message:"set in queue"}); 
         //Cannot set headers after they are sent to the client
     }
-    busRequestQueue.set(busId,res);
+    busRequestQueue.set(busId, res);
+    busRequestQueue.forEach(function (value, key) {
+        console.log(`key : ${key} | value : ${value}`);
+    });
 }
 
 // Create tutorial
@@ -112,7 +143,7 @@ exports.findAll = (req, res) => {
     let keyword;
     if (keyword) {
         condition = {
-            where : {
+            where: {
                 [Op.or]: [
                     {
                         title: {

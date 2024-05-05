@@ -20,6 +20,9 @@ module.exports = (sequelizeConfig, Sequelize) => {
         {
             count: {
                 type: Sequelize.BIGINT
+            },
+            disabledType:{
+                type: Sequelize.STRING
             }
         }
     );
