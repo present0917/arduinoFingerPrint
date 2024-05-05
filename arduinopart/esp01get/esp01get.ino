@@ -1,5 +1,11 @@
 #include <ArduinoJson.h>
 #include "WiFiEsp.h"
+
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+
 char ssid[] = "iptime";                        // WiFi 이름
 char pass[] = "";                      // WiFi 비밀번호
 int status = WL_IDLE_STATUS;                   // WiFi 연결 상태
@@ -10,6 +16,12 @@ WiFiEspClient client;
 void setup() {
   Serial.begin(9600);
   Serial3.begin(9600);
+
+  lcd.begin();
+  lcd.backlight();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("start");
   WiFi.init(&Serial3);
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println("WiFi shield not present");
@@ -26,6 +38,13 @@ void setup() {
 }
 
 void loop() {
+  getbody();
+  if (millis() - lastConnectionTime > postingInterval) {
+    httpRequest();
+  }
+}
+
+void getbody() {
   bool isBody = false;
   String line;
   while (client.available()) {
@@ -38,14 +57,16 @@ void loop() {
     }
     if (isBody) {
       DynamicJsonDocument doc(1024);
-      Serial.println(line);  // 본문 출력
+      //Serial.println(line);  // 본문 출력
       DeserializationError error = deserializeJson(doc, line);
       String response = doc["message"];
-      Serial.println(response);
-    }
-  }
-  if (millis() - lastConnectionTime > postingInterval) {
-    httpRequest();
+      if (response.length() > 3) {
+        lcd.clear();
+        Serial.println(response);
+        lcd.setCursor(0, 0);
+        lcd.print(response);
+      }
+    } 
   }
 }
 
