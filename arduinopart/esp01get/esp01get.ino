@@ -1,65 +1,76 @@
-#include "WiFiEsp.h"
-#include "SoftwareSerial.h"
 #include <ArduinoJson.h>
-
-SoftwareSerial Serialw(10, 11); // RX, TX
-char SSID_NAME[] = "iptime";
-char SSID_PASS[] = "";
-
-
-char PATH[] = "/api/tutorial"; 
-
+#include "WiFiEsp.h"
+char ssid[] = "iptime";                        // WiFi 이름
+char pass[] = "";                      // WiFi 비밀번호
+int status = WL_IDLE_STATUS;                   // WiFi 연결 상태
+char server[] = "";              // 서버 주소
+unsigned long lastConnectionTime = 0;          // 마지막 연결 시간
+const unsigned long postingInterval = 10000L;  // 연결 간격 (10초)
 WiFiEspClient client;
-char SERVER[] = "";
-int HTTPPORT = ;
-
 void setup() {
   Serial.begin(9600);
-  Serialw.begin(9600);
-  WiFi.init(&Serialw);
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(SSID_NAME);
-    WiFi.begin(SSID_NAME, SSID_PASS);
-    delay(1000);
+  Serial3.begin(9600);
+  WiFi.init(&Serial3);
+  if (WiFi.status() == WL_NO_SHIELD) {
+    Serial.println("WiFi shield not present");
+    while (true)
+      ;
   }
-  Serial.println("Connected to wifi");
+  while (status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to WPA SSID: ");
+    Serial.println(ssid);
+    status = WiFi.begin(ssid, pass);
+  }
+  Serial.println("You're connected to the network");
+  printWifiStatus();
 }
 
-
-
 void loop() {
-  Serial.println("OK");
-
-  if (client.connect(SERVER, HTTPPORT)) {
-    Serial.println("Connected to server");
-    
-    // Send HTTP POST request
-client.println(F("GET /api/tutorial HTTP/1.1")); 
-client.println("Connection: close");
-
-client.println();
-
-   bool isBody = false;
-    String line;
-
-    while (client.connected() || client.available()) {
-      line = client.readStringUntil('\n');
-      if (line == "\r") {
-        isBody = true; // 헤더가 끝나고 본문이 시작됨
-        continue;  // 본문의 첫 줄을 읽기 위해 계속
-      }
-      if (isBody) {
-        Serial.print(line);  // 본문 출력
-      }
+  bool isBody = false;
+  String line;
+  while (client.available()) {
+    // char c = client.read();
+    // Serial.write(c);
+    line = client.readStringUntil('\n');
+    if (line == "\r") {
+      isBody = true;  // 헤더가 끝나고 본문이 시작됨
+      continue;       // 본문의 첫 줄을 읽기 위해 계속
     }
-    
-    Serial.println("done");
-  } else {
-    Serial.println("Connection to server failed");
+    if (isBody) {
+      DynamicJsonDocument doc(1024);
+      Serial.println(line);  // 본문 출력
+      DeserializationError error = deserializeJson(doc, line);
+      String response = doc["message"];
+      Serial.println(response);
+    }
   }
+  if (millis() - lastConnectionTime > postingInterval) {
+    httpRequest();
+  }
+}
 
-  // Close connection
+void httpRequest() {
   client.stop();
-  delay(5000); // Delay before next request
+  if (client.connect(server, 917)) {
+    Serial.println("Connecting...");
+    client.println("GET /api/info HTTP/1.1");
+    //client.println("Host: arduino.cc");
+    client.println("Connection: close");
+    client.println();
+    lastConnectionTime = millis();
+  } else {
+    Serial.println("Connection failed");
+  }
+}
+
+void printWifiStatus() {
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+  long rssi = WiFi.RSSI();
+  Serial.print("Signal strength (RSSI):");
+  Serial.print(rssi);
+  Serial.println(" dBm");
 }
