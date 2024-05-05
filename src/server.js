@@ -20,7 +20,9 @@ app.use('/', require('./app/mysql/route/route.js'));
 
 // DB Connection
 const db = require('./app/mysql/model/index.js');
-      db.sequelizeConfig.sync();
+db.sequelizeConfig.sync({ force: true }).then(() => {
+  console.log("Drop db.");
+});
 
 // Default route for server status
 app.get('/', (req, res) => {

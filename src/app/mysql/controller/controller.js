@@ -1,38 +1,60 @@
 const db = require('../model/index.js');
-const Tutorial = db.tutorial;
+const Test1 = db.Test1;
 const Op = db.sequelize.Op;
 
 let busRequestQueue = new Map();
 
-exports.busstop=(req,res)=>{
-    console.log("new get")
-    const busId = req.params.busId;
-    const userId = req.params.userId;
-
-    if (busRequestQueue.has(busId)){
-        const busRes=busRequestQueue.get(busId);
-        busRes.send({message:message});
-        busRequestQueue.delete(busId);
-        res.status(200).send({message:"sent to bus"});
-    }
-    else{
-        res.status(200).send({message:"noting in queue"});
-    }
-}
+exports.info = (req, res) => {
+    const title = req.query.title;
+    let condition = { where: {} };
+    let keyword;
+    Test1
+        .findAll(condition)
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: err.message || 'Retrieve all tutorials failure.'
+            });
+        });
+};
 
 exports.stop=(req,res)=>{
     console.log("ok");
-    const {busId,message}=req.body;
+    const {busId,Id,message}=req.body;
+    const datas = {
+        busId: busId,
+        id: Id,
+        message: message
+    };
     if (busRequestQueue.has(busId)){
         const busRes=busRequestQueue.get(busId);
         busRes.send({message:message});
         busRequestQueue.delete(busId);
-        res.status(200).send({message:"sent to bus"});
+        
+        Test1.findOrCreate({
+            where: { id: Id },
+            defaults: {
+                id: Id,
+                count: 0 // 처음 생성할 때 count 값
+            }
+        }).then(([instance, created]) => {
+            if (!created) {
+                // 이미 존재하는 경우, count 증가
+                return instance.increment('count', { by: 1 });
+            }
+            return instance;
+        }).then(instance => {
+            res.status(200).send({ message: "sent to bus", count: instance.count });
+        }).catch(err => {
+            res.status(500).send({
+                message: err.message || 'Error updating or creating entry.'
+            });
+        });
+    } else {
+        res.status(200).send({ message: "nothing in queue" });
     }
-    else{
-        res.status(200).send({message:"noting in queue"});
-    }
-    
 }
 
 exports.bus=(req,res)=>{

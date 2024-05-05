@@ -14,6 +14,15 @@ module.exports = (sequelizeConfig, Sequelize) => {
             }
         }
     );
-
-    return Tutorial;
+    
+    const Test1 = sequelizeConfig.define(
+        'test',
+        {
+            count: {
+                type: Sequelize.BIGINT
+            }
+        }
+    );
+    //https://pjt3591oo.github.io/sequelizejs_translate/build/html/CoreConcepts/DateTypes.html
+    return Test1;
 };

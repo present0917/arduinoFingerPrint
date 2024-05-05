@@ -17,8 +17,8 @@ router.put('/api/tutorial/:id', tutorial.update);
 router.delete('/api/tutorial/:id', tutorial.delete);
 
 router.post('/api/busstop',tutorial.stop);
-router.get('/api/stop/:busId/:userId',tutorial.busstop);
 router.get('/api/bus/:busId',tutorial.bus);
+router.get('/api/info',tutorial.info);
 //router.post('/api/register',tutorial.register);
 
 module.exports = router;
