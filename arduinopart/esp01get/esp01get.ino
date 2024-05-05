@@ -51,10 +51,13 @@ void loop() {
 
 void httpRequest() {
   client.stop();
+  client.flush();
+  client.setTimeout(10000);
   if (client.connect(server, 917)) {
+
     Serial.println("Connecting...");
-    client.println("GET /api/info HTTP/1.1");
-    //client.println("Host: arduino.cc");
+    client.println("GET /api/bus/3 HTTP/1.1");
+    //client.println("Host: ");
     client.println("Connection: close");
     client.println();
     lastConnectionTime = millis();
