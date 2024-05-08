@@ -22,13 +22,14 @@ SoftwareSerial Serialw(10, 11);  // RX, TX
 char SSID_NAME[] = "iptime";
 char SSID_PASS[] = "";
 char SERVER[] = "";
-int HTTPPORT = ;
+int HTTPPORT = 917;
 char PATH[] = "/api/busstop";
 WiFiEspClient client;
 
 //SoftwareSerial fingerSerial(10, 11);
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial1);
 int id;
+int returned_id;
 
 //SoftwareSerial mp3Serial(12, 13); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
@@ -80,7 +81,7 @@ void setup() {
   }
   Serial.println(F("DFPlayer Mini online."));
 
-  myDFPlayer.volume(20);  //Set volume value. From 0 to 30
+  myDFPlayer.volume(25);  //Set volume value. From 0 to 30
   //mp3 파트
 
   pinMode(4, INPUT);
@@ -120,13 +121,30 @@ String keypad() {
   }
   return keypadData;
 }
-
-void postmethod() {
-
+String checkmessage(){
   String padNum = keypad();
+  if(padNum=="1"){
+    myDFPlayer.playMp3Folder(3); //1번버스?
+  }
+  else if(padNum=="2"){
+    myDFPlayer.playMp3Folder(2); //2번버스?
+  }
+  String checkCom = keypad();
+  if(checkCom=="1") return padNum;
+  else checkmessage();
+}
+void postmethod() {
+  myDFPlayer.playMp3Folder(1);//안내
+  delay(3000);
+  readFinger();
+  myDFPlayer.playMp3Folder(2);//인식됐다. 키패드로 버스번호 입력좀.
+  String postId= String(returned_id);
+  String padNum=checkmessage();
+
+
   String postData;
   Serial.println("OK" + padNum);
-  postData = "{\"busId\": \"" + padNum + "\", \"message\": \"" + "test" + "\"}";
+  postData = "{\"busId\": \"" + padNum + "\", \"Id\": \"" + postId + "\", \"message\": \"" + "test" + "\"}";
   int contentLength = postData.length();
 
   if (client.connect(SERVER, HTTPPORT)) {
@@ -218,6 +236,7 @@ void enroll() {
 }
 
 void postEnroll(String idnum, String distype) {
+  
   String postData;
   postData = "{\"Id\": \"" + idnum + "\", \"type\": \"" + distype + "\"}";
   int contentLength = postData.length();
@@ -268,9 +287,11 @@ void postEnroll(String idnum, String distype) {
 
 
 void readFinger() {
-  for (int i = 0; i < 20; i++) {
+  returned_id=500;
+  while (returned_id==500){
     getFingerprintID();
-    delay(50);
+    Serial.println("returned_id : "+String(returned_id));
+    delay(100);
   }
 }
 int getFingerprintEnroll() {
@@ -462,6 +483,7 @@ int getFingerprintID() {
   Serial.print(finger.fingerID);
   Serial.print(" with confidence of ");
   Serial.println(finger.confidence);
+  returned_id=finger.fingerID;
   return finger.fingerID;
 }
 int getFingerprintIDez() {

@@ -8,12 +8,12 @@ https://bcho.tistory.com/1284
 https://bcho.tistory.com/1283
 
 https://ttsfree.com/ko
-001 안내
-002 인식됨 키패드버스번호
-003 1번버스?
-004 2번버스?
-005 요청전송됨
-006 인식x다시
+001 안내 6
+002 인식됨 키패드버스번호 6
+003 1번버스? 7
+004 2번버스? 7 맞으면 1 틀리면 0
+005 요청전송됨4
+006 인식x다시7
 
 https://arduino.stackexchange.com/questions/60175/software-serial-conflict-with-wifi-on-esp8266
 충돌;;
