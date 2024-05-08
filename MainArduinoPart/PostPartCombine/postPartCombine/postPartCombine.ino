@@ -98,6 +98,16 @@ void loop() {
   else if (choicenum == 3) mp3test();
   else if (choicenum == 4) postmethod();
   else if (choicenum == 5) personcheck();
+  else if (choicenum == 6) distanceMode();
+}
+void distanceMode()
+{
+  for (int i = 0; i < 100; i++) {
+    int value = digitalRead(4);
+    Serial.println(value);
+    delay(100);
+    if (value == 1) postmethod();
+  }
 }
 void personcheck() {
   for (int i = 0; i < 100; i++) {
@@ -122,6 +132,7 @@ String keypad() {
   return keypadData;
 }
 String checkmessage(){
+  myDFPlayer.playMp3Folder(2);//인식됐다. 키패드로 버스번호 입력좀.
   String padNum = keypad();
   if(padNum=="1"){
     myDFPlayer.playMp3Folder(3); //1번버스?
@@ -137,7 +148,7 @@ void postmethod() {
   myDFPlayer.playMp3Folder(1);//안내
   delay(3000);
   readFinger();
-  myDFPlayer.playMp3Folder(2);//인식됐다. 키패드로 버스번호 입력좀.
+  
   String postId= String(returned_id);
   String padNum=checkmessage();
 
