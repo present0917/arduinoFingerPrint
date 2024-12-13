@@ -21,6 +21,6 @@ const sequelizeConfig = new Sequelize(
 const db = {};
 db.sequelize = Sequelize;
 db.sequelizeConfig = sequelizeConfig;
-db.Test1 = require('./model.js')(sequelizeConfig, Sequelize);
+db.database = require('./model.js')(sequelizeConfig, Sequelize);
 
 module.exports = db;

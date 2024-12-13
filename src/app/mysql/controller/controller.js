@@ -1,37 +1,37 @@
 const db = require('../model/index.js');
-const Test1 = db.Test1;
+const database = db.database;
 const Op = db.sequelize.Op;
+
 
 let busRequestQueue = new Map();
 
-exports.enroll = (req, res) => {
-    console.log("enroll");
+exports.enroll = async (req, res) => {
     const { Id, type } = req.body;
-    const datas = {
-        id: Id,
-        type: type
-    };
-    Test1.findOrCreate({
-        where: { id: Id },
-        defaults: {
-            id: Id,
-            disabledType: type,
-            count: 0 // 처음 생성할 때 count 값
-        }
-    }).then(([instance, created]) => {
-        if (!created) {
-            res.status(200).send({ message: "Already enrolled"});
-            return null;  
-        } else {
-            res.status(200).send({ message: "Enrolled"});
-            return instance;  //바로종료
-        }
-    }).catch(err => {
-        res.status(500).send({
-            message: err.message || 'Error updating or creating entry.'
+    const { sequelizeConfig } = db;
+    try {
+        await sequelizeConfig.transaction(async (t) => {
+            const [instance, created] = await database.findOrCreate({
+                where: { id: Id },
+                defaults: {
+                    id: Id,
+                    disabledType: type,
+                    count: 0
+                },
+                transaction: t
+            });
+
+            if (!created) {
+                res.status(200).send({ message: "Already enrolled" });
+            } else {
+                res.status(200).send({ message: "Enrolled" });
+            }
         });
-    });
-}
+    } catch (err) {
+        res.status(500).send({
+            message: err.message || 'Error processing transaction.'
+        });
+    }
+};
 
 
 
@@ -39,7 +39,7 @@ exports.info = (req, res) => {
     const title = req.query.title;
     let condition = { where: {} };
     let keyword;
-    Test1
+    database
         .findAll(condition)
         .then(data => {
             res.send(data);
@@ -59,11 +59,26 @@ exports.stop = (req, res) => {
         id: Id,
         message: message
     };
+
+
     if (busRequestQueue.has(busId)) {
-        const busRes = busRequestQueue.get(busId);
+
+        if (busRequestQueue.get(busId).processing) {
+            res.status(429).send({ message: "Bus is in busy" });
+            return;
+             //Optimistic Lock
+        }
+        busRequestQueue.get(busId).processing = true; //플래그를 mutex처럼 사용.
+        //Pessimistic Lock
+        //상태기반 동시성제어
+       
+
+        const busData = busRequestQueue.get(busId);
+        const busRes = busData.res;
+        //console.log(busRes);
         
         busRequestQueue.delete(busId);
-        Test1.findByPk(Id).then(instance => {
+        database.findByPk(Id).then(instance => {
             if (instance) {
                 busRes.send({ type: instance.disabledType, message: "Data found sent" });
             } else {
@@ -75,7 +90,7 @@ exports.stop = (req, res) => {
 
 
 
-        Test1.findOrCreate({
+        database.findOrCreate({
             where: { id: Id },
             defaults: {
                 id: Id,
@@ -102,17 +117,10 @@ exports.stop = (req, res) => {
 exports.bus = (req, res) => {
     const busId = req.params.busId;
 
-
-
     if (busRequestQueue.has(busId)) {
         busRequestQueue.delete(busId);
-        //res.status(201).send({message:"already in queue"});
     }
-    else {
-        //res.status(200).send({message:"set in queue"}); 
-        //Cannot set headers after they are sent to the client
-    }
-    busRequestQueue.set(busId, res);
+    busRequestQueue.set(busId, { res: res, processing: false });
     busRequestQueue.forEach(function (value, key) {
         console.log(`key : ${key} | value : ${value}`);
     });

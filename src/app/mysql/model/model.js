@@ -1,31 +1,21 @@
 module.exports = (sequelizeConfig, Sequelize) => {
-    // Set Model
-    const Tutorial = sequelizeConfig.define(
-        'tutorial',
+    const database = sequelizeConfig.define(
+        'database',
         {
-            title: {
-                type: Sequelize.STRING
+            id: {
+                type: Sequelize.INTEGER,
+                primaryKey: true,
+                autoIncrement: true,
             },
-            description: {
-                type: Sequelize.STRING
-            },
-            published: {
-                type: Sequelize.BOOLEAN
-            }
-        }
-    );
-    
-    const Test1 = sequelizeConfig.define(
-        'test',
-        {
             count: {
-                type: Sequelize.BIGINT
+                type: Sequelize.BIGINT,
             },
-            disabledType:{
-                type: Sequelize.STRING
-            }
+            disabledType: {
+                type: Sequelize.STRING,
+            },
         }
     );
-    //https://pjt3591oo.github.io/sequelizejs_translate/build/html/CoreConcepts/DateTypes.html
-    return Test1;
+    return database;
 };
+
+//https://pjt3591oo.github.io/sequelizejs_translate/build/html/CoreConcepts/DateTypes.html
