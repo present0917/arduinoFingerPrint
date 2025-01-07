@@ -11,6 +11,11 @@ app.use(cors());
 
 // Parse requests of content-type: application/json
 app.use(bodyParser.json());
+app.disable('etag');
+app.disable('x-powered-by');
+
+
+
 
 // Parse requests of content-type: application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
